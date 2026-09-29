@@ -39,7 +39,7 @@ async def setup_bot_commands(bot: Bot):
 
 async def main():
     """Main startup coroutine"""
-    if not BOT_TOKEN or "AAGfXdHX" not in BOT_TOKEN:
+    if not BOT_TOKEN or ":" not in BOT_TOKEN:
         logger.error("Invalid BOT_TOKEN configured. Please verify .env file.")
         sys.exit(1)
 
