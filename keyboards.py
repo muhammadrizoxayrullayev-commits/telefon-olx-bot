@@ -22,10 +22,12 @@ def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     builder.button(text="📱 Samsung", callback_data="brand:samsung")
     builder.button(text="⚡ Xiaomi / Redmi", callback_data="brand:xiaomi")
     builder.button(text="💻 Windows Noutbuklar", callback_data="brand:windows")
-    builder.button(text="🎮 Boshqa Gadjetlar (PS5, Xbox...)", callback_data="brand:other")
+    builder.button(text="🎮 Boshqa Gadjetlar", callback_data="brand:other")
+    builder.button(text="🏬 Do'konlar & Telegram Kanallar", callback_data="nav:channels_menu")
+    builder.button(text="📢 Malika & Abu Saxiy Bozorlari", callback_data="channels:bazaars")
     builder.button(text="🔍 Erkin qidiruv (Yozib topish)", callback_data="action:free_search")
     builder.button(text="ℹ️ Bot haqida & Yordam", callback_data="action:help")
-    builder.adjust(2, 2, 1, 1, 1)
+    builder.adjust(2, 2, 1, 1, 1, 1, 1)
     return builder.as_markup()
 
 
@@ -242,6 +244,19 @@ def get_battery_keyboard(back_cb: str = "nav:main_menu") -> InlineKeyboardMarkup
     return builder.as_markup()
 
 
+def get_channels_menu_keyboard() -> InlineKeyboardMarkup:
+    """Channels & Stores category selection keyboard"""
+    builder = InlineKeyboardBuilder()
+    builder.button(text="🍏 Apple Do'konlari (MacBro, BroStore...)", callback_data="channels:apple")
+    builder.button(text="💻 Noutbuklar & Gaming (Nout.uz, CompStore...)", callback_data="channels:windows")
+    builder.button(text="📱 Samsung & Xiaomi (Mi Store, Abu Saxiy...)", callback_data="channels:android")
+    builder.button(text="🏛️ Malika & Bozorlar (Malika Bozori, Optom)", callback_data="channels:bazaars")
+    builder.button(text="🔙 Orqaga", callback_data="nav:main_menu")
+    builder.button(text="🏠 Bosh menyu", callback_data="nav:main_menu")
+    builder.adjust(1, 1, 1, 1, 2)
+    return builder.as_markup()
+
+
 # ----------------- RESULT NAVIGATION KEYBOARD -----------------
 
 def get_result_card_keyboard(
@@ -269,6 +284,9 @@ def get_result_card_keyboard(
     if offer_url and offer_url.startswith("http"):
         builder.button(text="🌐 OLX da ko'rish (Havola)", url=offer_url)
 
+    # Direct access to stores & channels for this device
+    builder.button(text="🏬 Do'konlar & Kanallardagi narxlar", callback_data="action:related_channels")
+
     # Actions: List view & Repeat
     builder.button(text="📋 Barcha e'lonlar ro'yxati", callback_data="action:list_view")
     builder.button(text="🔄 Qayta qidirish", callback_data=back_cb)
@@ -277,5 +295,5 @@ def get_result_card_keyboard(
     builder.button(text="🔙 Orqaga", callback_data=back_cb)
     builder.button(text="🏠 Bosh menyu", callback_data="nav:main_menu")
 
-    builder.adjust(3, 1, 2, 2)
+    builder.adjust(3, 1, 1, 2, 2)
     return builder.as_markup()

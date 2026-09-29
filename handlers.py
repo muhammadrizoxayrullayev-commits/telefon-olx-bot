@@ -33,9 +33,10 @@ from keyboards import (
     get_xiaomi_series_keyboard, get_xiaomi_models_keyboard,
     get_other_gadgets_keyboard, get_ram_keyboard,
     get_storage_keyboard, get_gpu_keyboard, get_battery_keyboard,
-    get_result_card_keyboard
+    get_result_card_keyboard, get_channels_menu_keyboard
 )
 from olx_service import smart_search, download_image_bytes
+from channels import get_channels_by_category, format_channels_message, CHANNELS_DATA
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -817,6 +818,108 @@ async def cb_list_view(call: CallbackQuery, state: FSMContext):
     b.button(text="🔙 Kartochkaga qaytish", callback_data=f"res_page:{data.get('current_index', 0)}")
     b.button(text="🏠 Bosh menyu", callback_data="nav:main_menu")
     b.adjust(1, 1)
+
+    try:
+        if call.message.photo:
+            await call.message.delete()
+            await call.message.answer(text, reply_markup=b.as_markup(), parse_mode="HTML", disable_web_page_preview=True)
+        else:
+            await call.message.edit_text(text, reply_markup=b.as_markup(), parse_mode="HTML", disable_web_page_preview=True)
+    except Exception:
+        await call.message.answer(text, reply_markup=b.as_markup(), parse_mode="HTML", disable_web_page_preview=True)
+    await call.answer()
+
+
+# ----------------- CHANNELS & STORES HANDLERS -----------------
+
+@router.callback_query(F.data == "nav:channels_menu")
+async def cb_channels_menu(call: CallbackQuery):
+    """Show channels categories menu"""
+    text = (
+        "🏬 <b>O'zbekistonning Eng Yirik Gadjet Do'konlari va Telegram Kanallari</b>\n\n"
+        "Faqatgina OLX xususiy e'lonlari bilan cheklanib qolmasdan, "
+        "quyidagi bo'limlardan birini tanlab, Malika, Abu Saxiy va O'zbekiston bo'ylab rasmiy hamda "
+        "ishonchli do'konlar narxlari (Pricelist) va kanallari bilan tanishing:\n\n"
+        "👇 <b>Kerakli yo'nalishni tanlang:</b>"
+    )
+    kb = get_channels_menu_keyboard()
+    try:
+        if call.message.photo:
+            await call.message.delete()
+            await call.message.answer(text, reply_markup=kb, parse_mode="HTML")
+        else:
+            await call.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
+    except Exception:
+        await call.message.answer(text, reply_markup=kb, parse_mode="HTML")
+    await call.answer()
+
+
+@router.callback_query(F.data.startswith("channels:"))
+async def cb_channels_category(call: CallbackQuery):
+    """Display stores & channels list for selected category"""
+    cat_key = call.data.split(":")[1]
+    title_map = {
+        "apple": "🍏 Apple Rasmiy & Malika Do'konlari",
+        "windows": "💻 Windows & Gaming Noutbuklar",
+        "android": "📱 Samsung & Xiaomi Rasmiy Do'konlari",
+        "bazaars": "🏛️ Malika & Respublika Savdo Bozorlari"
+    }
+    cat_title = title_map.get(cat_key, "Gadjetlar Savdo Kanallari")
+    channels = CHANNELS_DATA.get(cat_key, CHANNELS_DATA["bazaars"])
+
+    text = format_channels_message(channels, cat_title)
+
+    from aiogram.utils.keyboard import InlineKeyboardBuilder
+    b = InlineKeyboardBuilder()
+    for ch in channels[:3]:
+        b.button(text=f"↗️ {ch['name'].split('—')[0].strip()}", url=ch["channel_url"])
+    b.button(text="🔙 Kanallar menyusiga", callback_data="nav:channels_menu")
+    b.button(text="🏠 Bosh menyu", callback_data="nav:main_menu")
+    b.adjust(1, 1, 1, 2)
+
+    try:
+        if call.message.photo:
+            await call.message.delete()
+            await call.message.answer(text, reply_markup=b.as_markup(), parse_mode="HTML", disable_web_page_preview=True)
+        else:
+            await call.message.edit_text(text, reply_markup=b.as_markup(), parse_mode="HTML", disable_web_page_preview=True)
+    except Exception:
+        await call.message.answer(text, reply_markup=b.as_markup(), parse_mode="HTML", disable_web_page_preview=True)
+    await call.answer()
+
+
+@router.callback_query(F.data == "action:related_channels")
+async def cb_related_channels_for_device(call: CallbackQuery, state: FSMContext):
+    """Shows channels matching the currently browsed gadget category"""
+    data = await state.get_data()
+    dev_cat = data.get("device_category", "")
+    base_model = data.get("base_query", "")
+
+    # Pick category
+    combined_info = f"{dev_cat} {base_model}".lower()
+    if any(k in combined_info for k in ["macbook", "iphone", "ipad", "apple"]):
+        cat_key = "apple"
+        cat_title = f"🍏 Apple ({base_model or 'MacBook / iPhone'}) Do'konlari"
+    elif any(k in combined_info for k in ["windows", "noutbuk", "victus", "legion", "asus", "hp"]):
+        cat_key = "windows"
+        cat_title = f"💻 Noutbuklar & Malika Do'konlari"
+    elif any(k in combined_info for k in ["samsung", "xiaomi", "redmi", "poco"]):
+        cat_key = "android"
+        cat_title = f"📱 Telefon Do'konlari & Abu Saxiy"
+    else:
+        cat_key = "bazaars"
+        cat_title = f"🏛️ Malika & Respublika E'lon Kanallari"
+
+    channels = CHANNELS_DATA.get(cat_key, CHANNELS_DATA["bazaars"])
+    text = format_channels_message(channels, cat_title)
+
+    from aiogram.utils.keyboard import InlineKeyboardBuilder
+    b = InlineKeyboardBuilder()
+    for ch in channels[:3]:
+        b.button(text=f"↗️ {ch['name'].split('—')[0].strip()}", url=ch["channel_url"])
+    b.button(text="🔙 E'longa qaytish", callback_data=f"res_page:{data.get('current_index', 0)}")
+    b.button(text="🏠 Bosh menyu", callback_data="nav:main_menu")
+    b.adjust(1, 1, 1, 2)
 
     try:
         if call.message.photo:

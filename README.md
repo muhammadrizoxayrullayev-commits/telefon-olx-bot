@@ -41,6 +41,13 @@ O'zbekiston bo'ylab **OLX.uz** platformasidagi barcha texnika va gadjetlarni (Ap
   - DJI Dronlar (Mini 4 Pro, Air 3)
   - Smart TV lar
 
+- 🏬 **O'zbekistonning Eng Yirik Do'konlari & Telegram Kanallari:**
+  - **Apple Do'konlari:** MacBro, BroStore, iSpace, Mobile Lux, Apple Bozor
+  - **Noutbuklar & Gaming:** Nout.uz, CompStore, PCMarket, Noutbuklar Bozori
+  - **Samsung & Xiaomi:** Mi Store, Samsung Malika & Abu Saxiy, Radius Mobile, Abu Saxiy Optom
+  - **Bozor & E'lon Guruhlari:** Malika Bozori Rasmiy, Telefonlar Bozori Uzbekistan, Gadgets Bozor
+  - Har bir do'konning bevosita Telegram kanali, narxnomasi (Pricelist), lokatsiyasi va sotuvchi kontakti!
+
 - 🔍 **Erkin Qidiruv (Smart Search):**
   - Foydalanuvchi istalgan gadjet nomini yozsa (masalan: `macbook air m2 16gb 512gb`), bot darhol OLX dan eng mos natijalarni topib beradi.
 
